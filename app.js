@@ -31,8 +31,8 @@ const leerDatos = () =>{
 // funcion para escribir en el archivo json: pide el objeto, lo pasa a json y edita el archivo
 const escribirDatos = (datos) =>{
     try{
-        fs.writeFileSync('.data/datos.json', JSON.stringify(datos)) //json.stringify convierte el objeto js a un json
-    }catch{
+        fs.writeFileSync('data/datos.json', JSON.stringify(datos)) //json.stringify convierte el objeto js a un json
+    }catch(error){
         console.log(error)
     }
 }
@@ -42,31 +42,50 @@ const escribirDatos = (datos) =>{
 
 app.get('/productos', (req, res) =>{
 
-    res.send('listado de productos');
+    const datos = leerDatos();
+    res.json(datos.productos);
 
 })
 
 
 app.post('/productos', (req, res) =>{
 
-    res.send('producto agregado')
+    const datos = leerDatos();
+    
+    console.log(datos.productos.length)
+    nuevoProd = {id : datos.productos.length + 1, ...req.body} // ... se llama spread
+    // genera un id y le agrega una copia en req.body
+
+    datos.productos.push(nuevoProd)
+    escribirDatos(datos);
+    // sube el producto 
+    res.json({
+              "mensaje": 'nuevo producto agregado',
+              "producto": nuevoProd})
 })
 
 
 app.get('/productos/:id', (req, res) =>{
 
-    console.log(req.params.id)
-    console.log(req.body)
+    const datos = leerDatos();
 
-    res.send('producto pedido')
+    console.log(req.params.id)
+
+   const prodEncontrado = datos.productos.find((p) => p.id==req.params.id)
+    if(!prodEncontrado){
+      return  res.status(404).json('no se encuentra el producto')
+    }
+    res.json({
+            "mensaje": "producto encontrado",
+            "prod": prodEncontrado})
 })
 
 
-app.put('/productos/:id', (req, res) =>{
-    console.log(req.params.id)
-    console.log(req.body)
 
-    res.send('producto editado')
+app.put('/productos/:id', (req, res) =>{
+
+    
+
 })
 
 

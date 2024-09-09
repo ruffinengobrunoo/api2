@@ -1,5 +1,1 @@
-{
-    "id": 1,
-    "nombre": "ojota",
-    "precio": 10
-}
+{"productos":[{"id":1,"nombre":"ojota","precio":10},{"id":2,"nombre":"lapiz","precio":120},{"id":3,"nombre":"aa","precio":100},{"id":4,"nombre":"khk","precio":100}]}
