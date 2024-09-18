@@ -21,7 +21,7 @@ const leerDatos = () =>{
     const datos = fs.readFileSync('./data/datos.json');
     return JSON.parse(datos); // el metodo json.parse convierte una cadena json en un objeto js
     // console.log(JSON.parse(datos)) prueba de funcionamiento
-    }catch{ //si falla, muestra el error
+    }catch(error){ //si falla, muestra el error
         console.log(error)
     }
 }
@@ -35,6 +35,15 @@ const escribirDatos = (datos) =>{
     }catch(error){
         console.log(error)
     }
+}
+
+//al eliminar un producto, el id no sigue incremetando sino que suma a partir de la posicion en el array. Con esta funcion, el id incrementa correctamente
+function reOrdenar(datos){
+    let indice=1;
+    datos.productos.map((p)=>{
+        p.id = indice;
+        indice++;
+    })
 }
 
 
@@ -84,14 +93,35 @@ app.get('/productos/:id', (req, res) =>{
 
 app.put('/productos/:id', (req, res) =>{
 
-    
+    const id = req.params.id
+    const nuevosDatos = req.body
+    const datos=leerDatos()
+    const prodEncontrado = datos.productos.find((p)=>p.id==req.params.id)
+
+        if(!prodEncontrado){
+          return res.status(404),res.json('No se encuentra el producto')
+        }
+
+        datos.productos = datos.productos.map(p=>p.id==req.params.id?{...p,...nuevosDatos}:p)
+        escribirDatos(datos)
+        res.json({mensaje: "productos actualizados"})
 
 })
 
 
 app.delete('/productos/:id', (req, res) =>{
-    console.log(req.params.id)
-    console.log(req.body)
 
-    res.send('producto eliminado')
+    const id = req.params.id
+    const datos=leerDatos()
+    const prodEncontrado = datos.productos.find((p)=>p.id==req.params.id)
+
+        if(!prodEncontrado){
+          return res.status(404),res.json('No se encuentra el producto')
+        }
+
+        datos.productos = datos.productos.filter((p)=>p.id!=req.params.id)
+        reOrdenar(datos)
+        escribirDatos(datos)
+        res.json({"Mensaje":'producto eliminado'})
+
 })
